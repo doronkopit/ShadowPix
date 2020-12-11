@@ -6,7 +6,7 @@ Implementation of **[SHADOWPIX: Multiple Images from Self Shadowing](https://www
 To use **ShadowPix** visualization -
 ```js
 ~/DIR/ShadowPix
->>> cd visualizer
+<b> >>> cd visualizer </b>
 
 ~/DIR/ShadowPix/visualizer
 >>> npm install
