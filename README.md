@@ -1,9 +1,9 @@
 # ShadowPix
 
-Implementation of [SHADOWPIX: Multiple Images from Self Shadowing](https://www.cs.tau.ac.il/~amberman/shadowpixPaper.pdf) paper.
+Implementation of **[SHADOWPIX: Multiple Images from Self Shadowing](https://www.cs.tau.ac.il/~amberman/shadowpixPaper.pdf)** paper.
 
 ## Visualizer 
-To use ShadowPix visualization -
+To use **ShadowPix** visualization -
 ```js
 ~/DIR/ShadowPix
 >>> cd visualizer
