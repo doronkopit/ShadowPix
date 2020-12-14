@@ -5,7 +5,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 const style = {
-    height: 500 // we can control scene size by setting container dimensions
+    height: 1200 // we can control scene size by setting container dimensions
 };
 
 class App extends Component {
@@ -66,7 +66,7 @@ class App extends Component {
 
                 // change some custom props of the element: placement, color, rotation, anything that should be
                 // done once the model was loaded and ready for display
-                el.position.set(0, -150, 0);
+                el.position.set(0, 0, 0);
                 //el.material.color.set(0x50C878);
                 //el.rotation.x = 23.5;
 
@@ -97,7 +97,7 @@ class App extends Component {
 
         // set color and intensity of lights
         lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-        lights[ 1 ] = new THREE.PointLight( 0xffffff, 0.5, 0 );
+        lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
         lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
 
         // place some lights around the scene for best looks and feel
