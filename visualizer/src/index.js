@@ -66,9 +66,9 @@ class App extends Component {
 
                 // change some custom props of the element: placement, color, rotation, anything that should be
                 // done once the model was loaded and ready for display
-                el.position.set(0, 0, 0);
+                el.position.set(0, 200, 0);
                 //el.material.color.set(0x50C878);
-                //el.rotation.x = 23.5;
+                el.rotation.z = 4.72;
 
                 // make this element available inside of the whole component to do any animation later
                 this.model = el;
@@ -96,23 +96,42 @@ class App extends Component {
         const lights = [];
 
         // set color and intensity of lights
-        lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-        lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-        lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+        lights[ 0 ] = new THREE.SpotLight( 0xffffff, 1, 0 );
+        lights[0].castShadow = true;
+        lights[ 1 ] = new THREE.SpotLight( 0xffffff, 0.4, 0 );
+        lights[1].castShadow = true;
+        lights[ 2 ] = new THREE.SpotLight( 0xffffff, 0.4, 0 );
+        lights[2].castShadow = true;
 
         // place some lights around the scene for best looks and feel
-        lights[ 0 ].position.set( 0, 2000, 0 );
-        lights[ 1 ].position.set( 1000, 1000, 1000 );
-        lights[ 2 ].position.set( - 1000, - 2000, - 1000 );
+        lights[ 0 ].position.set( 400, 200, 150 );
+        lights[ 1 ].position.set( 500, 500, 500);
+        lights[ 2 ].position.set( -500, -500, -500);
 
         this.scene.add( lights[ 0 ] );
         this.scene.add( lights[ 1 ] );
         this.scene.add( lights[ 2 ] );
+
+        const axesHelper = new THREE.AxesHelper( 5000 );
+        this.scene.add( axesHelper );
+
+        const material = new THREE.LineBasicMaterial({
+            color: 0x0000ff
+        });
+        
+        const points = [];
+        points.push( new THREE.Vector3( - 100, 0, 0 ) );
+        points.push( new THREE.Vector3( 100, 0, 0 ) );
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints( points );
+        
+        const line = new THREE.Line( geometry, material );
+        this.scene.add( line );
     };
 
     startAnimationLoop = () => {
         // slowly rotate an object
-        if (this.model) this.model.rotation.z += 0.005;
+        //if (this.model) this.model.rotation.z += 0.005;
 
         this.renderer.render( this.scene, this.camera );
 
