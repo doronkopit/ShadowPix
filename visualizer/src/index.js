@@ -55,7 +55,7 @@ class App extends Component {
         // load a resource
         loader.load(
             // resource URL relative to the /public/index.html of the app
-            'local_output.obj',
+            'local_output333.obj',
             // called when resource is loaded
             ( object ) => {
                 this.scene.add( object );
