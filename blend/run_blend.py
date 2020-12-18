@@ -7,14 +7,15 @@ import glob
 import argparse
 import imageio
 from PIL import Image
+from pathlib import Path
 
-project_root = 'C:\\Users\\Doron Kopit\\PycharmProjects\\ShadowPix'
+project_root = Path.cwd() 
 parser = argparse.ArgumentParser()
 parser.add_argument('--blender_path', type=str, default='/args/blender/blender', help='')
-parser.add_argument('--script_path', type=str, default=project_root + '/visualize/render.py', help='')
-parser.add_argument('--blend_path', type=str, default=project_root + '/visualize/stage2.blend', help='')
-parser.add_argument('--input_folder', type=str, default=project_root + '/models/mies.obj', help='')
-parser.add_argument('--output_folder', type=str, default=project_root + '/renders', help='')
+parser.add_argument('--script_path', type=str, default=project_root / '/visualize/render.py', help='')
+parser.add_argument('--blend_path', type=str, default=project_root / '/visualize/stage2.blend', help='')
+parser.add_argument('--input_folder', type=str, default=project_root / '/models/mies.obj', help='')
+parser.add_argument('--output_folder', type=str, default=project_root / '/renders', help='')
 parser.add_argument('--gif_frames', type=int, default=0, help='number of gif frames')
 parser.add_argument('--duration', type=int, default=4, help='duration of gif in seconds')
 args = parser.parse_args()
