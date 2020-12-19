@@ -13,7 +13,7 @@ def load_pic_to_square_np(pic, size):
     if picture.width != picture.height:
         picture = pic_to_square(picture)
     picture = picture.resize((size, size), Image.ANTIALIAS)
-    return np.array(picture) / 255
+    return np.array(picture).transpose() / 255
 
 
 def show_image(image):
@@ -21,7 +21,7 @@ def show_image(image):
     if image.shape[0] == 1:
         image.shape = image.shape[1:]
     if len(image.shape) < 3:
-        image = np.expand_dims(image,2)
+        image = np.expand_dims(image, 2)
         image = np.repeat(image, 3, 2)
     plt.imshow(image)
     plt.show(block=True)
