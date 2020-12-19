@@ -13,7 +13,9 @@ gif_frames = 0
 # gif_frames = int(sys.argv[-1])
 bpy.ops.import_scene.obj(filepath=obj_file)
 mat = bpy.data.materials.new(name="Material")
-sun = bpy.data.objects['Sun']
+light_data = bpy.data.lights.new('sun', 'SUN')
+sun = bpy.data.objects.new('sun', light_data)
+bpy.context.collection.objects.link(sun)
 mesh = bpy.context.selected_objects[0]
 mesh.data.materials.append(mat)
 
