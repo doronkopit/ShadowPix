@@ -55,7 +55,7 @@ class App extends Component {
         // load a resource
         loader.load(
             // resource URL relative to the /public/index.html of the app
-            'local_output333.obj',
+            'local_output_123.obj',
             // called when resource is loaded
             ( object ) => {
                 this.scene.add( object );
@@ -109,10 +109,10 @@ class App extends Component {
         //lights[ 0 ].position.set( -600, 0, 350 );
         lights[ 1 ].position.set( 300, 150, 300);
         //lights[1].target.position.set(100, 0, 0);
-        //lights[ 2 ].position.set( 400, 0, 300); //Trump
-        //lights[ 2 ].position.set( -400, 0, 300); //Lebron
-        lights[ 2 ].position.set( 0, 700, 400); //Obama
-        //lights[2].target.position.set(100, 0, 0);
+        lights[ 2 ].position.set( -800, 0, 500); //Trump
+        //lights[ 2 ].position.set( 600, 0, 300); //Lebron
+        //lights[ 2 ].position.set( 0, -700, 400); //Obama
+        //lights[2].target.position.set(500, 0, 500);
 
         //this.scene.add( lights[ 0 ] );
         //this.scene.add( lights[ 1 ] );
