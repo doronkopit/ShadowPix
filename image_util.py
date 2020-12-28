@@ -13,7 +13,7 @@ def load_pic_to_square_np(pic, size):
     if picture.width != picture.height:
         picture = pic_to_square(picture)
     picture = picture.resize((size, size), Image.ANTIALIAS)
-    return np.array(picture).transpose() / 255
+    return np.array(picture) / 255
 
 
 def show_image(image):
