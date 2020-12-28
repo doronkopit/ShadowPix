@@ -69,6 +69,7 @@ class App extends Component {
                 el.position.set(0, 200, 0);
                 //el.material.color.set(0x50C878);
                 el.rotation.z = 4.72;
+                el.geometry.scale(2, 2, 2);
 
                 // make this element available inside of the whole component to do any animation later
                 this.model = el;
@@ -98,19 +99,27 @@ class App extends Component {
         // set color and intensity of lights
         lights[ 0 ] = new THREE.SpotLight( 0xffffff, 1, 0 );
         lights[0].castShadow = true;
-        lights[ 1 ] = new THREE.SpotLight( 0xffffff, 0.4, 0 );
+        lights[ 1 ] = new THREE.DirectionalLight( 0xffffff, 0.8 );
         lights[1].castShadow = true;
-        lights[ 2 ] = new THREE.SpotLight( 0xffffff, 0.4, 0 );
+        lights[ 2 ] = new THREE.DirectionalLight( 0xffffff, 0.8 );
         lights[2].castShadow = true;
 
         // place some lights around the scene for best looks and feel
-        lights[ 0 ].position.set( 400, 200, 150 );
-        lights[ 1 ].position.set( 500, 500, 500);
-        lights[ 2 ].position.set( -500, -500, -500);
+        //lights[ 0 ].position.set( -600, 0, 350 );
+        lights[ 1 ].position.set( -1000, 150, 500);
+        lights[1].target.position.set(100, 0, 0);
+        //lights[ 2 ].position.set( -1000, 150, 500);
 
         this.scene.add( lights[ 0 ] );
         this.scene.add( lights[ 1 ] );
+        this.scene.add(lights[1].target);
         this.scene.add( lights[ 2 ] );
+        let spotLightHelper = new THREE.SpotLightHelper( lights[0]);
+        this.scene.add( spotLightHelper );
+        spotLightHelper = new THREE.DirectionalLightHelper( lights[1]);
+        this.scene.add( spotLightHelper );
+        spotLightHelper = new THREE.DirectionalLightHelper( lights[2]);
+        this.scene.add( spotLightHelper );
 
         const axesHelper = new THREE.AxesHelper( 5000 );
         this.scene.add( axesHelper );
@@ -131,7 +140,7 @@ class App extends Component {
 
     startAnimationLoop = () => {
         // slowly rotate an object
-        //if (this.model) this.model.rotation.z += 0.005;
+        if (this.model) this.model.rotation.z += 0.005;
 
         this.renderer.render( this.scene, this.camera );
 
@@ -178,3 +187,110 @@ class Container extends React.Component {
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<Container />, rootElement);
+
+/** 
+// Define the standard global variables
+var container,
+  scene,
+  camera,
+  renderer,
+  plane,
+  mouseMesh,
+  light;
+
+// Custom global variables
+var mouse = {
+  x: 0,
+  y: 0
+};
+
+init();
+animate();
+
+function init() {
+
+  // Scene
+  scene = new THREE.Scene();
+
+  window.addEventListener('resize', function() {
+    var WIDTH = window.innerWidth,
+      HEIGHT = window.innerHeight;
+    renderer.setSize(WIDTH, HEIGHT);
+    camera.aspect = WIDTH / HEIGHT;
+    camera.updateProjectionMatrix();
+  });
+
+  // Camera
+  var screenWidth = window.innerWidth,
+    screenHeight = window.innerHeight,
+    viewAngle = 75,
+    nearDistance = 0.1,
+    farDistance = 1000;
+
+  camera = new THREE.PerspectiveCamera(viewAngle, screenWidth / screenHeight, nearDistance, farDistance);
+  scene.add(camera);
+  camera.position.set(0, 0, 5);
+  camera.lookAt(scene.position);
+
+  // Renderer engine together with the background
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
+  renderer.setSize(screenWidth, screenHeight);
+  container = document.getElementById('container');
+  container.appendChild(renderer.domElement);
+
+  // Define the lights for the scene
+  light = new THREE.PointLight(0xff00ff);
+  light.position.set(0, 0, 15);
+  scene.add(light);
+  var lightAmb = new THREE.AmbientLight(0x000000);
+  scene.add(lightAmb);
+
+  // Create a circle around the mouse and move it
+  // The sphere has opacity 0
+  var mouseGeometry = new THREE.SphereGeometry(1, 100, 100);
+  var mouseMaterial = new THREE.MeshLambertMaterial({});
+  mouseMesh = new THREE.Mesh(mouseGeometry, mouseMaterial);
+
+  mouseMesh.position.set(0, 0, 0);
+  scene.add(mouseMesh);
+
+  // When the mouse moves, call the given function
+  document.addEventListener('mousemove', onMouseMove, false);
+}
+
+// Follows the mouse event
+function onMouseMove(event) {
+
+  // Update the mouse variable
+  event.preventDefault();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Make the sphere follow the mouse
+  var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+  vector.unproject(camera);
+  var dir = vector.sub(camera.position).normalize();
+  var distance = -camera.position.z / dir.z;
+  var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+  //mouseMesh.position.copy(pos);
+
+  light.position.copy(new THREE.Vector3(pos.x, pos.y, pos.z + 2));
+};
+
+// Animate the elements
+function animate() {
+  requestAnimationFrame(animate);
+  render();
+}
+
+// Rendering function
+function render() {
+
+  // For rendering
+  renderer.autoClear = false;
+  renderer.clear();
+  renderer.render(scene, camera);
+};**/
