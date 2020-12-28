@@ -66,9 +66,10 @@ class App extends Component {
 
                 // change some custom props of the element: placement, color, rotation, anything that should be
                 // done once the model was loaded and ready for display
-                el.position.set(0, 200, 0);
+                el.position.set(-200, 250, 0);
                 //el.material.color.set(0x50C878);
                 el.rotation.z = 4.72;
+                //el.rotation.x = -5;
                 el.geometry.scale(2, 2, 2);
 
                 // make this element available inside of the whole component to do any animation later
@@ -99,25 +100,30 @@ class App extends Component {
         // set color and intensity of lights
         lights[ 0 ] = new THREE.SpotLight( 0xffffff, 1, 0 );
         lights[0].castShadow = true;
-        lights[ 1 ] = new THREE.DirectionalLight( 0xffffff, 0.8 );
+        lights[ 1 ] = new THREE.DirectionalLight( 0xffffff, 1 );
         lights[1].castShadow = true;
-        lights[ 2 ] = new THREE.DirectionalLight( 0xffffff, 0.8 );
+        lights[ 2 ] = new THREE.DirectionalLight( 0xffffff, 1 );
         lights[2].castShadow = true;
 
         // place some lights around the scene for best looks and feel
         //lights[ 0 ].position.set( -600, 0, 350 );
-        lights[ 1 ].position.set( -1000, 150, 500);
-        lights[1].target.position.set(100, 0, 0);
-        //lights[ 2 ].position.set( -1000, 150, 500);
+        lights[ 1 ].position.set( 300, 150, 300);
+        //lights[1].target.position.set(100, 0, 0);
+        //lights[ 2 ].position.set( 400, 0, 300); //Trump
+        //lights[ 2 ].position.set( -400, 0, 300); //Lebron
+        lights[ 2 ].position.set( 0, 700, 400); //Obama
+        //lights[2].target.position.set(100, 0, 0);
 
-        this.scene.add( lights[ 0 ] );
-        this.scene.add( lights[ 1 ] );
-        this.scene.add(lights[1].target);
-        this.scene.add( lights[ 2 ] );
+        //this.scene.add( lights[ 0 ] );
+        //this.scene.add( lights[ 1 ] );
+        //this.scene.add(lights[1].target);
+        this.scene.add(new THREE.AmbientLight( 0x404040, 0.05 ));
+        this.scene.add( lights[2]);
+        this.scene.add(lights[2].target);
         let spotLightHelper = new THREE.SpotLightHelper( lights[0]);
-        this.scene.add( spotLightHelper );
+        //this.scene.add( spotLightHelper );
         spotLightHelper = new THREE.DirectionalLightHelper( lights[1]);
-        this.scene.add( spotLightHelper );
+        //this.scene.add( spotLightHelper );
         spotLightHelper = new THREE.DirectionalLightHelper( lights[2]);
         this.scene.add( spotLightHelper );
 
@@ -140,7 +146,7 @@ class App extends Component {
 
     startAnimationLoop = () => {
         // slowly rotate an object
-        if (this.model) this.model.rotation.z += 0.005;
+        //if (this.model) this.model.rotation.z += 0.005;
 
         this.renderer.render( this.scene, this.camera );
 
