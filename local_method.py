@@ -36,7 +36,11 @@ class LocalMethod:
         self.height = 0.0
         self.vertices = [None]
         self.faces = []
-
+        points = [[0, 0, 0], [0, self.output_size, 0], [self.output_size, self.output_size, 0],
+                  [self.output_size, 0, 0]]
+        verts = len(self.vertices)
+        self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
+        self.vertices.extend(points)
     def produce_pix(self):
         self.calc_constrains()
         self.export_constrains_to_mesh()
