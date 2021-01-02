@@ -8,7 +8,7 @@ import scipy.signal as signal
 
 class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
-                 light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=10000):
+                 light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000):
 
         if len(input_pics) != 4:
             raise
@@ -54,7 +54,7 @@ class GlobalMethod:
         success_rand = 0
         while success < self.steps:
             if success % 100 == 0:
-                print(f'{success/self.steps}% success:{success},success_rand:{success_rand}, fail1:{fails1},fail2:{fails2}')
+                print(f'{success/self.steps}% success:{success},success_rand:{success_rand}, fail1:{fails1},fail2:{fails2} obj_value:{self.obj_value}')
             status, delta_obj = self.step()
             if status > 0:
                 if delta_obj == 1:
