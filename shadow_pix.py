@@ -6,23 +6,30 @@ from pstats import SortKey
 
 pr = cProfile.Profile()
 pr.enable()
-pics = ["pics/pic_1.jpg", "pics/pic_2.jpg", "pics/pic_3.jpg", "pics/pic_4.jpg"]
-output = 'global_output_123.obj'
+pics = ["pics/pic_a.jpg", "pics/pic_b.jpg", "pics/pic_c.jpg", "pics/pic_d.jpg"]
+output = 'global_init_test2.obj'
 output_size = 200  # size in milemeters of output print
 wall_size = 0.25  # thickness of walls
 pixel_size = 2.5
 grid_size = int(output_size / (wall_size + pixel_size))
+res_
 
-square_imgs = [image_util.load_pic_to_square_np(pic, 200) for pic in pics]
-# for im in square_imgs:
-#     image_util.show_image(im)
 local = False
 if local:
+    square_imgs = [image_util.load_pic_to_square_np(pic, grid_size) for pic in pics]
+# for im in square_imgs:
+#     image_util.show_image(im)
     local_m = LocalMethod(square_imgs[:3], output, output_size, grid_size=grid_size, wall_size=wall_size,
                           receiver_size=pixel_size)
     local_m.produce_pix()
 else:
-    global_m = GlobalMethod(square_imgs, output, output_size,steps=1000000)
+    res=1
+
+    square_imgs = [image_util.load_pic_to_square_np(pic, output//res) for pic in pics]
+# for im in square_imgs:
+#     image_util.show_image(im)
+    global_m = GlobalMethod(square_imgs, output, output_size,steps=2*10**6,height_field_size=1)
+    print("starting optimize")
     global_m.produce_pix()
 
 print("finish")

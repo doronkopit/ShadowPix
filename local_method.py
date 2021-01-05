@@ -1,5 +1,4 @@
 import numpy as np
-import trimesh
 import mesh_util
 
 
@@ -10,7 +9,7 @@ class LocalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, wall_size=0.25, receiver_size=2.5,
                  light_angle=60):
         if len(input_pics) != 3:
-            raise
+            raise ValueError
         self.pics = [1 - pic for pic in input_pics]  # inverting grayscale so black will be 1
         self.output_path = output_file
 
@@ -47,23 +46,25 @@ class LocalMethod:
         self.save_mesh_to_output()
 
     def calc_constrains(self):
+        # for i in range(self.grid_size):
+        #     for j in range(self.grid_size):
+        #         self.u[j, i] = self.u[j, 0] + self.S * (
+        #             sum([self.pics[1][j, x] - self.pics[0][j, x] for x in range(1, j + 1)]))  # equation 1 in the paper
+        # self.u[0, :self.grid_size] += self.S * self.pics[0][:, 0]  # fix constraints of first column
         for i in range(self.grid_size):
-            for j in range(self.grid_size):
-                self.u[j, i] = self.u[j, 0] + self.S * (
-                    sum([self.pics[1][j, x] - self.pics[0][j, x] for x in range(1, j + 1)]))  # equation 1 in the paper
-        self.u[0, :self.grid_size] += self.S * self.pics[0][:, 0]  # fix constraints of first column
+            self.u[:, i + 1] = self.u[:, i] + self.S * (self.pics[1][:, i] - self.pics[0][:, i])
+        self.u += (self.S * self.pics[0][:, 0])[:, np.newaxis]
+        eq3_constrains = self.S * (-self.pics[0][:self.grid_size - 1, :] + self.pics[0][1:, :] - self.pics[2][1:, :])
+        #eq3_constrains = np.zeros([self.grid_size-1, self.grid_size])
 
-        # eq3_constrains = self.S * (
-        #       -self.pics[0][:, :self.grid_size - 1] + self.pics[0][:, 1:] - self.pics[2][:, 1:])
-        eq3_constrains = np.zeros([self.grid_size-1, self.grid_size])
-
-        # self.u[:, 0] -= min(0, np.min(self.u[:, 0]))  # setting the minimium of  u's first row to zero
-        for i in range(self.grid_size):
-            for j in range(self.grid_size - 1):
-                eq3_constrains[j, i] = self.S * (-self.pics[0][j, i] + self.pics[0][i, j + 1] - self.pics[2][j+1, i])
-                eq3_j_constrain = -self.u[j+1, i] + self.u[j, i] + eq3_constrains[j, i]
-                self.u[j+1, i] += max(eq3_j_constrain, 0)
+        #self.u[:, 0] -= min(0, np.min(self.u[0,: ]))  # setting the minimium of  u's first row to zero
+        for j in range(self.grid_size - 1):
+#            eq3_constrains[j, i] = self.S * (-self.pics[0][j, i] + self.pics[0][j+1, i] - self.pics[2][j+1, i])
+            eq3_j_constrain = -self.u[j+1, :-1] + self.u[j, :-1] + eq3_constrains[j, :]
+            self.u[j+1, :] += max(np.max(eq3_j_constrain), 0)
         self.r = self.u[:,:self.grid_size] - self.S * self.pics[0]
+        #r=self.u[:,:self.grid_size] - self.S * self.pics[1]
+
         # todo check if the order is right
         self.calc_chamfers()
         self.v = self.r + self.S * self.pics[2]
@@ -130,40 +131,40 @@ class LocalMethod:
 
     def create_wall_mesh(self, i, j, param):
         # creates 5 parts of a wall block
-        lwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, j * self.unit_size, 0],
-                                                   [i * self.unit_size, (j + 1) * self.unit_size, param])
+        lwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+                                                   [(j + 1) * self.unit_size,i * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(lwall)
-        rwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size + self.wall_size, j * self.unit_size, 0],
-                                                   [i * self.unit_size + self.wall_size, (j + 1) * self.unit_size,
+        rwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size + self.wall_size, 0],
+                                                   [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                     param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(rwall)
-        upwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, (j + 1) * self.unit_size, 0],
-                                                    [i * self.unit_size + self.wall_size, (j + 1) * self.unit_size,
+        upwall = mesh_util.get_4_points_from_2_vert([ (j + 1) * self.unit_size, i * self.unit_size,0],
+                                                    [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                      param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(upwall)
-        dwnwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, j * self.unit_size, 0],
-                                                     [i * self.unit_size + self.wall_size, j * self.unit_size,
+        dwnwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+                                                     [ j * self.unit_size,i * self.unit_size + self.wall_size,
                                                       param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(dwnwall)
-        topwall = mesh_util.get_4_points_from_2_horiz([i * self.unit_size, j * self.unit_size, param],
-                                                      [i * self.unit_size + self.wall_size, (j + 1) * self.unit_size,
+        topwall = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size, param],
+                                                      [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                        param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(topwall)
 
     def create_receiver_mesh(self, i, j, param):
-        receiver = mesh_util.get_4_points_from_2_horiz([i * self.unit_size + self.wall_size, j * self.unit_size, param],
-                                                       [(i + 1) * self.unit_size,
-                                                        (j + 1) * self.unit_size - self.wall_size, param])
+        receiver = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size + self.wall_size, param],
+                                                       [
+                                                        (j + 1) * self.unit_size - self.wall_size,(i + 1) * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(receiver)
@@ -171,10 +172,10 @@ class LocalMethod:
     def create_plus_chamfer(self, i, j, param):
         chamferx_dist = param / self.S
         points = []
-        points.append([(i + 1) * self.unit_size - chamferx_dist, j * self.unit_size + self.wall_size, self.r[j,i]])
-        points.append([(i + 1) * self.unit_size, j * self.unit_size + self.wall_size, self.r[j,i] + param])
-        points.append([(i + 1) * self.unit_size, (j + 1) * self.unit_size, self.r[j,i] + param])
-        points.append([(i + 1) * self.unit_size - chamferx_dist, (j + 1) * self.unit_size, self.r[j,i]])
+        points.append([ j * self.unit_size + self.wall_size, (i + 1) * self.unit_size - chamferx_dist,self.r[j,i]])
+        points.append([ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size, self.r[j,i] + param])
+        points.append([ (j + 1) * self.unit_size,(i + 1) * self.unit_size, self.r[j,i] + param])
+        points.append([ (j + 1) * self.unit_size, (i + 1) * self.unit_size - chamferx_dist,self.r[j,i]])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(points)
@@ -183,45 +184,45 @@ class LocalMethod:
         chamferx_dist = param / self.S
         points = []
         points.append(
-            [i * self.unit_size + self.wall_size + chamferx_dist, j * self.unit_size + self.wall_size, self.r[j,i]])
-        points.append([i * self.unit_size + self.wall_size, j * self.unit_size + self.wall_size, self.r[j,i] + param])
+            [ j * self.unit_size + self.wall_size,i * self.unit_size + self.wall_size + chamferx_dist, self.r[j,i]])
+        points.append([ j * self.unit_size + self.wall_size,i * self.unit_size + self.wall_size, self.r[j,i] + param])
         points.append(
-            [i * self.unit_size + self.wall_size, (j + 1) * self.unit_size, self.r[j,i] + param])
-        points.append([i * self.unit_size + self.wall_size + chamferx_dist, (j + 1) * self.unit_size, self.r[j,i]])
+            [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size, self.r[j,i] + param])
+        points.append([ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size + chamferx_dist, self.r[j,i]])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(points)
 
     def create_vwall_mesh(self, i, j, param):
         # creates 5 parts of a wall block
-        lwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, j * self.unit_size, 0],
-                                                   [i * self.unit_size, j * self.unit_size + self.wall_size, param])
+        lwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+                                                   [ j * self.unit_size + self.wall_size,i * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(lwall)
 
-        rwall = mesh_util.get_4_points_from_2_vert([(i + 1) * self.unit_size, j * self.unit_size, 0],
-                                                   [(i + 1) * self.unit_size, j * self.unit_size + self.wall_size,
+        rwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,(i + 1) * self.unit_size, 0],
+                                                   [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                     param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(rwall)
 
-        upwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, j * self.unit_size + self.wall_size, 0],
-                                                    [(i + 1) * self.unit_size, j * self.unit_size + self.wall_size,
+        upwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size + self.wall_size,i * self.unit_size, 0],
+                                                    [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                      param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(upwall)
 
-        dwnwall = mesh_util.get_4_points_from_2_vert([i * self.unit_size, j * self.unit_size, 0],
-                                                     [(i + 1) * self.unit_size, j * self.unit_size, param])
+        dwnwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+                                                     [j * self.unit_size,(i + 1) * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(dwnwall)
 
-        topwall = mesh_util.get_4_points_from_2_horiz([i * self.unit_size, j * self.unit_size, param],
-                                                      [(i + 1) * self.unit_size, j * self.unit_size + self.wall_size,
+        topwall = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size, param],
+                                                      [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                        param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])

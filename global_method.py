@@ -1,27 +1,26 @@
-import cv2
+import image_util
 import numpy as np
-import torch
-import torch.nn as nn
+# import torch
 import mesh_util
-import scipy.signal as signal
+
+
+
 
 
 class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
                  light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000):
 
-        if len(input_pics) != 4:
-            raise
+        # if len(input_pics) != 4:
+        #     raise
         self.pics = [pic for pic in input_pics]  # inverting grayscale so black will be 1
-        self.grad_conv, self.lp_conv = self.init_conv()
-        self.conv_meth = 'scipy'
-        self.gradient_pass_filter_images = self.grad_conv(self.lp_conv(self.pics))
+        self.gradient_pass_filter_images = image_util.grad_conv(image_util.lp_conv(self.pics))
         self.output_path = output_file
         self.height_field_size = height_field_size
         self.output_size = output_size
         if not grid_size:
             self.grid_size = int(output_size // self.height_field_size)
-        self.h = np.zeros([self.grid_size, self.grid_size])
+        self.h = self.create_initial_grid()
         self.light_angle = light_angle
         self.S = 1 / np.tan(self.light_angle * (np.pi / 180))
         self.radius = radius
@@ -32,9 +31,9 @@ class GlobalMethod:
         self.T = 1
         self.steps = steps
         self.alpha = self.T / self.steps
-        self.L = np.ones([len(self.pics), self.grid_size, self.grid_size])
-        self.obj_value = self.calc_objective_val(self.L)
         self.l_calculator = ShadowCalculatorL(self.radius, self.grid_size, len(self.pics)).calc_new_l
+        self.L = ShadowCalculatorL(self.radius, self.grid_size, len(self.pics)).cal_l_all(self.h)
+        self.obj_value = self.calc_objective_val(self.L)
         self.vertices = [None]
         self.faces = []
         points = [[0, 0, 0], [0, self.output_size, 0], [self.output_size, self.output_size, 0],
@@ -45,6 +44,7 @@ class GlobalMethod:
 
     def produce_pix(self):
         self.optimize()
+        #self.min_object()
         self.export_to_obj()
 
     def optimize(self):
@@ -52,21 +52,27 @@ class GlobalMethod:
         fails2 = 0
         success = 0
         success_rand = 0
-        while success < self.steps:
-            if success % 100 == 0:
-                print(f'{success/self.steps}% success:{success},success_rand:{success_rand}, fail1:{fails1},fail2:{fails2} obj_value:{self.obj_value}')
+        convergence_fail = 0
+        for i in range(self.steps):
+            if i % 1000 == 0:
+                print(
+                    f'{i * 100 / self.steps}% success:{success * 100 / (i + 1)}%,success_rand:{success_rand * 100 / (i + 1)}%, fail1:{fails1 * 100 / (i + 1)}%,fail2:{fails2 * 100 / (i + 1)}% obj_value:{self.obj_value}')
             status, delta_obj = self.step()
             if status > 0:
+                convergence_fail = 0
                 if delta_obj == 1:
                     success_rand += 1
                 success += 1
             elif status == -1:
+                convergence_fail += 1
                 fails1 += 1
             else:
+                convergence_fail += 1
                 fails2 += 1
-        floor = self.h.min()
-        self.h -= floor
-
+            if convergence_fail == 100:
+                print(f"optimizing failed after {i} steps, obj value={self.obj_value}")
+                break
+       
     def step(self):
         delta = 0
         while 0 == delta:
@@ -92,9 +98,9 @@ class GlobalMethod:
             return -1, None
 
     def calc_objective_val(self, L):
-        l_conv_p = self.lp_conv(L)
-        l_conv_p_conv_g = self.grad_conv(l_conv_p)
-        h_conv_g = self.grad_conv(self.h)
+        l_conv_p = image_util.lp_conv(L)
+        l_conv_p_conv_g = image_util.grad_conv(l_conv_p)
+        h_conv_g = image_util.grad_conv(self.h)
         parts = np.zeros(3)
         parts[0] = mse(l_conv_p, self.pics)
         parts[1] = self.w_g * mse(l_conv_p_conv_g, self.gradient_pass_filter_images)
@@ -152,12 +158,36 @@ class GlobalMethod:
         if obj_delta > 0:
             return obj_delta
         else:
-            if (np.random.random() < np.e ** (obj_delta / self.T)):
+            if np.random.random() < np.e ** (obj_delta / self.T):
                 return 1
             else:
                 return -2
 
+    def create_initial_grid(self, checker=False, average=True):
+        res = np.zeros([self.grid_size, self.grid_size])
+        if checker:
+            for i in range(self.grid_size):
+                for j in range(self.grid_size // 2):
+                    res[i, (2 * j + i % 2)] = 1
+        if average:
+            for i in range(self.grid_size):
+                for j in range(self.grid_size):
+                    val = 0
+                    for pic in self.pics:
+                        val += pic[i, j]
+                    val = val/len(self.pics)
+                    if val > 0.7:
+                        res[i, j] = 3
+                    elif val > 0.5:
+                        res[i, j] = 2
+                    elif val > 0.3:
+                        res[i, j] = 1
+        return res
+
     def export_to_obj(self):
+        floor = self.h.min()
+        self.h -= floor
+        self.h *= self.S
         for i in range(self.grid_size):
             for j in range(self.grid_size):
                 if self.h[i, j] != 0:
@@ -174,60 +204,7 @@ class GlobalMethod:
             for face in self.faces:
                 f.write("f %d %d %d\n" % (face[0], face[1], face[2]))
 
-    @staticmethod
-    def init_conv():
-        sobelx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], np.float32)
-        sobely = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], np.float32)
 
-        # sobelx_tor = torch.Tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
-        # sobely_tor = torch.Tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
-
-        conv_x = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-        conv_y = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-        # conv_x.weight = nn.Parameter(sobelx_tor.unsqueeze(0).unsqueeze(0))
-        # conv_y.weight = nn.Parameter(sobely_tor.unsqueeze(0).unsqueeze(0))
-
-        lp_filter = np.ones([3, 3], np.float32) / 9
-
-        # lp_filter_tor = torch.Tensor([[1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9]])
-        # conv_lp = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-        # conv_lp.weight = nn.Parameter(lp_filter_tor.unsqueeze(0).unsqueeze(0))
-
-        def grad_conv(pics):
-            if type(pics) != np.ndarray or len(pics.shape) > 2:
-                # g_x = np.array([signal.fftconvolve(pic, sobelx, mode='same') for pic in pics])
-                # g_y = np.array([signal.fftconvolve(pic, sobely, mode='same') for pic in pics])
-
-                # g_x = np.array([conv_x(torch.from_numpy(pic)) for pic in pics])
-                # g_y = np.array([conv_y(torch.from_numpy(pic)) for pic in pics])
-
-                g_x = np.array([cv2.Sobel(pic, cv2.CV_64F, 1, 0, ksize=3) for pic in pics])
-                g_y = np.array([cv2.Sobel(pic, cv2.CV_64F, 0, 1, ksize=3) for pic in pics])
-
-            else:
-
-                # g_x = signal.fftconvolve(pics, sobelx, mode='same')
-                # g_y = signal.fftconvolve(pics, sobely, mode='same')
-                # g_x = conv_x(torch.from_numpy(pics))
-                # g_y = conv_y(torch.from_numpy(pics))
-                g_x = cv2.Sobel(pics, cv2.CV_64F, 1, 0, ksize=3)
-                g_y = cv2.Sobel(pics, cv2.CV_64F, 0, 1, ksize=3)
-
-            return np.sqrt(np.power(g_x, 2) + np.power(g_y, 2))
-
-        def lp_conv(pics):
-            # return conv_lp(pics)
-            if type(pics) != np.ndarray or len(pics.shape) > 2:
-                # return np.array([signal.fftconvolve(pic, lp_filter, mode='same') for pic in pics])
-                return np.array([cv2.blur(pic, (3, 3)) for pic in pics])
-                # pics=[torch.from_numpy(pic).unsqueeze(0).unsqueeze(0).float() for pic in pics]
-                # return np.array([conv_lp(pic) for pic in pics])
-            # return signal.fftconvolve(pics, lp_filter, mode='same')
-            return cv2.blur(pics, (3, 3))
-
-            # return conv_lp(pics)
-
-        return grad_conv, lp_conv
 
     def create_h_mesh(self, i, j, param):
         # creates 5 parts of a wall block
@@ -263,6 +240,9 @@ class GlobalMethod:
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(topwall)
 
+    def min_object(self):
+        pass
+
 
 class ShadowCalculatorL:
     def __init__(self, radius, grid_size, directions):
@@ -271,6 +251,12 @@ class ShadowCalculatorL:
         self.compare_idx_vector = np.arange(1, radius + 1)
         self.mat_select = np.arange(0, grid_size).reshape([grid_size, 1]) + self.compare_idx_vector
         self.num_of_directions = directions
+
+    def cal_l_all(self, H):
+        new_l = np.ones([self.num_of_directions, self.grid_size, self.grid_size])
+        for row in range(0, self.grid_size):
+            new_l = self.calc_new_l(H, new_l, row, row)
+        return new_l
 
     def calc_new_l(self, H, L, row, col):
         new_l = L.copy()
@@ -307,6 +293,7 @@ def mse(a, b):
         b = np.zeros(a.shape)
     res = a - b
     res = (res ** 2)
-    res = (res.sum()) #/ a.size
+    res = (res.sum())  # / a.size
     return res
-    #return np.linalg.norm(a-b)
+    # return np.linalg.norm(a-b)
+
