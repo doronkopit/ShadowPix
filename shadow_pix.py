@@ -12,7 +12,6 @@ output_size = 200  # size in milemeters of output print
 wall_size = 0.25  # thickness of walls
 pixel_size = 2.5
 grid_size = int(output_size / (wall_size + pixel_size))
-res_
 
 local = False
 if local:
@@ -25,7 +24,7 @@ if local:
 else:
     res=1
 
-    square_imgs = [image_util.load_pic_to_square_np(pic, output//res) for pic in pics]
+    square_imgs = [image_util.load_pic_to_square_np(pic, output_size//res) for pic in pics]
 # for im in square_imgs:
 #     image_util.show_image(im)
     global_m = GlobalMethod(square_imgs, output, output_size,steps=2*10**6,height_field_size=1)

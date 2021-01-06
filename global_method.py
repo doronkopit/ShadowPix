@@ -4,9 +4,6 @@ import numpy as np
 import mesh_util
 
 
-
-
-
 class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
                  light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000):
@@ -79,7 +76,10 @@ class GlobalMethod:
             delta = np.random.randint(-5, 6)
         row = np.random.randint(0, self.grid_size)
         col = np.random.randint(0, self.grid_size)
-        self.h[row, col] += delta
+        return self.make_step(row, col, delta)
+        
+    def make_step(self, row, col, delta):
+        self.h[row, col] += delta        
         if self.valid_step(row, col, delta):
             new_l = self.l_calculator(self.h, self.L, row, col)
             new_objective = self.calc_objective_val(new_l)
@@ -96,7 +96,7 @@ class GlobalMethod:
         else:
             self.h[row, col] -= delta
             return -1, None
-
+        
     def calc_objective_val(self, L):
         l_conv_p = image_util.lp_conv(L)
         l_conv_p_conv_g = image_util.grad_conv(l_conv_p)
