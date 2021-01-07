@@ -2,11 +2,12 @@ import image_util
 import numpy as np
 # import torch
 import mesh_util
+import time
 
 
 class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
-                 light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000):
+                 light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000, biased_costs=True):
 
         # if len(input_pics) != 4:
         #     raise
@@ -30,7 +31,10 @@ class GlobalMethod:
         self.alpha = self.T / self.steps
         self.l_calculator = ShadowCalculatorL(self.radius, self.grid_size, len(self.pics)).calc_new_l
         self.L = ShadowCalculatorL(self.radius, self.grid_size, len(self.pics)).cal_l_all(self.h)
+        self.biased_costs = biased_costs
+        self.idx_cost = np.zeros(self.h.size)
         self.obj_value = self.calc_objective_val(self.L)
+
         self.vertices = [None]
         self.faces = []
         points = [[0, 0, 0], [0, self.output_size, 0], [self.output_size, self.output_size, 0],
@@ -41,7 +45,7 @@ class GlobalMethod:
 
     def produce_pix(self):
         self.optimize()
-        #self.min_object()
+        # self.min_object()
         self.export_to_obj()
 
     def optimize(self):
@@ -50,6 +54,7 @@ class GlobalMethod:
         success = 0
         success_rand = 0
         convergence_fail = 0
+        #time_beg = time.time()
         for i in range(self.steps):
             if i % 1000 == 0:
                 print(
@@ -69,17 +74,25 @@ class GlobalMethod:
             if convergence_fail == 100:
                 print(f"optimizing failed after {i} steps, obj value={self.obj_value}")
                 break
-       
+            # if time.time() - time_beg > 42300:
+            #     print(f"close to time limit, done {i} steps, obj value={self.obj_value}")
+            #     break
+
     def step(self):
         delta = 0
         while 0 == delta:
             delta = np.random.randint(-5, 6)
-        row = np.random.randint(0, self.grid_size)
-        col = np.random.randint(0, self.grid_size)
+        if self.biased_costs:
+            idx = np.random.choice(self.h.size, 1, p=self.idx_cost)[0]
+            row = idx // self.grid_size
+            col = idx % self.grid_size
+        else:
+            row = np.random.randint(0, self.grid_size)
+            col = np.random.randint(0, self.grid_size)
         return self.make_step(row, col, delta)
-        
+
     def make_step(self, row, col, delta):
-        self.h[row, col] += delta        
+        self.h[row, col] += delta
         if self.valid_step(row, col, delta):
             new_l = self.l_calculator(self.h, self.L, row, col)
             new_objective = self.calc_objective_val(new_l)
@@ -96,15 +109,22 @@ class GlobalMethod:
         else:
             self.h[row, col] -= delta
             return -1, None
-        
+
     def calc_objective_val(self, L):
         l_conv_p = image_util.lp_conv(L)
         l_conv_p_conv_g = image_util.grad_conv(l_conv_p)
         h_conv_g = image_util.grad_conv(self.h)
         parts = np.zeros(3)
-        parts[0] = mse(l_conv_p, self.pics)
-        parts[1] = self.w_g * mse(l_conv_p_conv_g, self.gradient_pass_filter_images)
-        parts[2] = self.w_s * mse(h_conv_g, None)
+        l1 = mse(l_conv_p, self.pics)
+        parts[0] = l1.sum()
+        l2 = self.w_g * mse(l_conv_p_conv_g, self.gradient_pass_filter_images)
+        parts[1] = l2.sum()
+        l3 = self.w_s * mse(h_conv_g, None)
+        l3 = l3[np.newaxis, :]
+        parts[2] = l3.sum()
+        loss = np.concatenate([l1, l2, l3])
+        loss = np.sum(loss, axis=0).reshape(self.h.size)
+        self.idx_cost = loss / loss.sum()
         return parts.sum()
 
     def valid_step(self, row, col, delta) -> bool:
@@ -163,7 +183,7 @@ class GlobalMethod:
             else:
                 return -2
 
-    def create_initial_grid(self, checker=False, average=True):
+    def create_initial_grid(self, checker=False, average=False):
         res = np.zeros([self.grid_size, self.grid_size])
         if checker:
             for i in range(self.grid_size):
@@ -175,7 +195,7 @@ class GlobalMethod:
                     val = 0
                     for pic in self.pics:
                         val += pic[i, j]
-                    val = val/len(self.pics)
+                    val = val / len(self.pics)
                     if val > 0.7:
                         res[i, j] = 3
                     elif val > 0.5:
@@ -203,8 +223,6 @@ class GlobalMethod:
                 f.write("v %f %f %f\n" % (v[0], v[1], v[2]))
             for face in self.faces:
                 f.write("f %d %d %d\n" % (face[0], face[1], face[2]))
-
-
 
     def create_h_mesh(self, i, j, param):
         # creates 5 parts of a wall block
@@ -293,7 +311,6 @@ def mse(a, b):
         b = np.zeros(a.shape)
     res = a - b
     res = (res ** 2)
-    res = (res.sum())  # / a.size
+    res = (res)  # / a.size
     return res
     # return np.linalg.norm(a-b)
-
