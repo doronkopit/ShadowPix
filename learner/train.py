@@ -22,7 +22,7 @@ local = False
 res=1
 
 square_imgs = [image_util.load_pic_to_square_np(pic, output_size // res) for pic in pics]
-global_m = GlobalMethodLearner(square_imgs, output, output_size,steps=2*10**3,height_field_size=1)
+global_m = GlobalMethodLearner(square_imgs, output, output_size,steps=2*10**2,height_field_size=1)
 print("starting optimize")
 global_m.produce_pix()
 print_stats(global_m.metrices)
