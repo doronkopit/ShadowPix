@@ -1,5 +1,5 @@
 from global_method import GlobalMethod
-from learner.analyze_tools import analyze, Metrices
+from learner.analyze_tools import analyze, PixModel
 import numpy as np
 
 
@@ -9,20 +9,20 @@ class GlobalMethodLearner(GlobalMethod):
         super().__init__(input_pics, output_file, output_size=output_size, grid_size=grid_size, height_field_size=height_field_size, 
         light_angle=light_angle, w_g=w_g, w_s=w_s, radius=radius, steps=steps)
 
-        self.metrices = Metrices(grid_size=self.grid_size)
+        self.model = PixModel(grid_size=self.grid_size)
 
     @analyze    
     def make_step(self, row, col, delta):
         status, delta_obj = super().make_step(row, col, delta)
-        self.metrices.update_pix(row, col, status)
+        self.model.update_pix(row, col, status)
         return status, delta_obj
 
     def step(self):
         delta = 0
         while 0 == delta:
             delta = np.random.randint(-5, 6)
-        p = self.metrices.pix_score.reshape(-1) / self.metrices.total_score
-        idx = np.random.choice(self.metrices.pix_score.size, 1, p=p)[0]
+        p = self.model.pix_score.reshape(-1) / self.model.total_score
+        idx = np.random.choice(self.model.pix_score.size, 1, p=p)[0]
         row = idx // self.grid_size
         col = idx % self.grid_size
         return self.make_step(row, col, delta)

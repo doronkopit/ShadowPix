@@ -16,19 +16,22 @@ def print_stats(metrices, print_all=False):
     top = 30
     print(f'Top {top} pixels --> \n')
     max_top = np.argsort(metrices.pix_score.reshape(-1))[::-1][:top]
-    print_analysis(max_top, metrices=metrices)
+    print_analysis(max_top, model=metrices)
 
     # Bottom 10 pixels
     bottom = 30
     print(f'\nBottom {bottom} pixels --> \n')
     min_top = np.argsort(metrices.pix_stat[:, :, 1].reshape(-1))[::-1][:bottom]
-    print_analysis(min_top, metrices=metrices)
+    print_analysis(min_top, model=metrices)
 
-def print_analysis(top_list, metrices):
+def print_analysis(top_list, model):
     for pos, i in enumerate(top_list):
-        row = i // metrices.grid_size
-        col = i % metrices.grid_size
-        success_count = metrices.pix_stat[row][col][0]
-        fail_count = metrices.pix_stat[row][col][1]
-        score = metrices.pix_score[row][col]
-        print(f'{pos+1:} - Row {row}, Col {col}: Score={score}, Success={success_count}, Fail={fail_count}')
+        row = i // model.grid_size
+        col = i % model.grid_size
+        success_count = model.pix_stat[row][col][0]
+        fail_count = model.pix_stat[row][col][1]
+        neighbor_succ = model.pix_stat[row][col][2]
+        neighbor_fail = model.pix_stat[row][col][3]
+        score = model.pix_score[row][col]
+        print(f'{pos+1:} - Row {row}, Col {col}: Score={score}, Success={success_count}, \
+            Fail={fail_count}, Neighbor Success={neighbor_succ}, Neighbor Fail={neighbor_fail}')
