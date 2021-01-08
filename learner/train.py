@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from learner.global_method_learning import GlobalMethodLearner
-from learner.analyze_tools import print_stats
+from learner.learning_utils import print_stats
 import image_util
 
 pics = ["pics/pic_a.jpg", "pics/pic_b.jpg", "pics/pic_c.jpg", "pics/pic_d.jpg"]

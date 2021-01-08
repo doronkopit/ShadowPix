@@ -28,7 +28,6 @@ class Metrices():
         updated_pix_score = original_pix_score + update
         updated_pix_score = self.bias if updated_pix_score < self.bias else updated_pix_score 
         self.pix_score[row][col] = updated_pix_score
-        print(updated_pix_score)
         self.total_score += (updated_pix_score - original_pix_score)
          
 
@@ -38,38 +37,3 @@ def analyze(func):
         # print(f'Run {func.__name__} with args={args}')
         return func(*args, **kwargs)
     return wrapper
-
-
-def print_stats(metrices: Metrices):
-    print(f'Printing summary of stats ->')
-
-    for row in range(metrices.grid_size):
-        for col in range(metrices.grid_size):
-            success_count = metrices.pix_stat[row][col][0]
-            fail_count = metrices.pix_stat[row][col][1]
-            score = metrices.pix_score[row][col]
-            print(f'Row {row}, Col {col}: Score={score}, Success={success_count}, Fail={fail_count}')
-
-    # Top 10 pixels
-    top = 10
-    print(type(metrices.pix_stat))    
-    max_top = np.argsort(metrices.pix_score.reshape(-1))[::-1][:top]
-    for pos, i in enumerate(max_top):
-        row = i // metrices.grid_size
-        col = i % metrices.grid_size
-        success_count = metrices.pix_stat[row][col][0]
-        fail_count = metrices.pix_stat[row][col][1]
-        score = metrices.pix_score[row][col]
-        print(f'{pos+1:} - Row {row}, Col {col}: Score={score}, Success={success_count}, Fail={fail_count}')
-
-    # Bottom 10 pixels
-    top = 10
-    print(type(metrices.pix_stat))    
-    max_top = np.argsort(metrices.pix_score.reshape(-1))[:top]
-    for pos, i in enumerate(max_top):
-        row = i // metrices.grid_size
-        col = i % metrices.grid_size
-        success_count = metrices.pix_stat[row][col][0]
-        fail_count = metrices.pix_stat[row][col][1]
-        score = metrices.pix_score[row][col]
-        print(f'{pos+1:} - Row {row}, Col {col}: Score={score}, Success={success_count}, Fail={fail_count}')
