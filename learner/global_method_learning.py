@@ -1,5 +1,5 @@
 from global_method import GlobalMethod
-from learner.analyze_tools import analyze, PixModel
+from learner.model import analyze, PixModel
 import numpy as np
 
 
