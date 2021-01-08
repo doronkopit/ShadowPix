@@ -6,11 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from learner.global_method_learning import GlobalMethodLearner
 from learner.analyze_tools import print_stats
 import image_util
-import cProfile, pstats, io
-from pstats import SortKey
 
-pr = cProfile.Profile()
-pr.enable()
 pics = ["pics/pic_a.jpg", "pics/pic_b.jpg", "pics/pic_c.jpg", "pics/pic_d.jpg"]
 output = 'global_init_test2.obj'
 output_size = 200  # size in milemeters of output print
@@ -27,10 +23,3 @@ print("starting optimize")
 global_m.produce_pix()
 print_stats(global_m.metrices)
 
-print("finish")
-pr.disable()
-s = io.StringIO()
-sortby = SortKey.CUMULATIVE
-ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-ps.print_stats()
-print(s.getvalue())
