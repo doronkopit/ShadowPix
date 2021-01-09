@@ -7,7 +7,7 @@ from pstats import SortKey
 pr = cProfile.Profile()
 pr.enable()
 pics = ["pics/pic_a.jpg", "pics/pic_b.jpg", "pics/pic_c.jpg", "pics/pic_d.jpg"]
-output = 'global_init_test2.obj'
+output = 'global_bias.obj'
 output_size = 200  # size in milemeters of output print
 wall_size = 0.25  # thickness of walls
 pixel_size = 2.5

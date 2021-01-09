@@ -12,7 +12,7 @@ N = 5
 name = random.choice(string.ascii_uppercase) + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N)) + random.choice(string.ascii_uppercase)
 print(name)
 
-res = cmds.file("/Users/yalevy/Desktop/local_output_123.obj", i=True, type="OBJ", namespace=name, preserveName=True)
+res = cmds.file("/Users/yalevy/Downloads/global_learning.obj", i=True, type="OBJ", namespace=name, preserveName=True)
 print(res)
 
 # Scaling and rotating
