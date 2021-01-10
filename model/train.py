@@ -3,8 +3,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from learner.global_method_learning import GlobalMethodLearner
-from learner.learning_utils import log_statistics
+from model.global_method_learning import GlobalMethodLearner
+from model.learning_utils import log_statistics
 from util import image_util
 import argparse
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-    parser = argparse.ArgumentParser(description='ShadowPix global method')
+    parser = argparse.ArgumentParser(description='ShadowPix global method with PixModel')
     parser.add_argument('-p', '--pics', nargs='*',
                         default=["pics/pic_a.jpg",
                                  "pics/pic_b.jpg",

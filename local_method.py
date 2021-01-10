@@ -67,8 +67,6 @@ class LocalMethod:
         self.r -= min_height
         self.v -= min_height
         self.height = max(np.max(self.u), np.max(self.r), np.max(self.v))
-        print(f"height of model {self.height}")
-        print("finished constrains")
 
     def calc_chamfers(self):
         sum_of_d = 0
@@ -114,7 +112,7 @@ class LocalMethod:
                     self.create_vwall_mesh(i,j, self.v[j,i])
 
     def save_mesh_to_output(self):
-        print("ready to show")
+        print(f"Mesh saved into {self.output_path}")
         with open(self.output_path, 'w+') as f:
             for v in self.vertices:
                 if v is None:
@@ -229,7 +227,7 @@ if __name__ == '__main__':
 
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-    parser = argparse.ArgumentParser(description='ShadowPix global method')
+    parser = argparse.ArgumentParser(description='ShadowPix local method')
     parser.add_argument('-p', '--pics', nargs='*',
                         default=["pics/pic_a.jpg",
                                  "pics/pic_b.jpg",
