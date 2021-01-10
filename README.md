@@ -186,4 +186,12 @@ optional arguments:
   -v, --verbose-log     If set, all pixel data is logged in log_path
 ```
 
+## Visualization
+Visualization is done with Autodesk Maya modeling and ray tracing.
 
+Usage: 
+1. Create a mesh using our ShadowPix implementation
+2. Open Autodesk Maya (free student lisence!)
+3. Change `file` variable to the target .OBJ file
+4. Run simulation.py via Maya's script editor
+5. Default light is `+X`, changing is easy by pressing the directional light red arrows and setting intensity
