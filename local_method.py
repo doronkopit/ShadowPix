@@ -7,7 +7,8 @@ class LocalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, wall_size=0.25, receiver_size=2.5,
                  with_chamfers=True, light_angle=60):
         if len(input_pics) != 3:
-            raise ValueError
+            raise ValueError(f'LocalMethod expects 3 inputs images, but got {len(input_pics)}')
+
         self.pics = [1 - pic for pic in input_pics]  # inverting grayscale so black will be 1
         self.output_path = output_file
 

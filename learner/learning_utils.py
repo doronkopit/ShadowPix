@@ -24,6 +24,7 @@ def print_stats(metrices, print_all=False):
     min_top = np.argsort(metrices.pix_stat[:, :, 1].reshape(-1))[::-1][:bottom]
     print_analysis(min_top, model=metrices)
 
+
 def print_analysis(top_list, model):
     for pos, i in enumerate(top_list):
         row = i // model.grid_size

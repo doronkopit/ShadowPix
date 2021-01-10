@@ -24,7 +24,7 @@ class GlobalMethodLearner(GlobalMethod):
         self.model.update_pix(row, col, status)
         return status, delta_obj
 
-    def step(self):
+    def iteration(self):
         delta = 0
         while 0 == delta:
             delta = np.random.randint(-5, 6)

@@ -59,7 +59,7 @@ class GlobalMethod:
             if i % 1000 == 0:
                 print(
                     f'{i * 100 / self.steps}% success:{success * 100 / (i + 1)}%,success_rand:{success_rand * 100 / (i + 1)}%, fail1:{fails1 * 100 / (i + 1)}%,fail2:{fails2 * 100 / (i + 1)}% obj_value:{self.obj_value}')
-            status, delta_obj = self.step()
+            status, delta_obj = self.iteration()
             if status > 0:
                 convergence_fail = 0
                 if delta_obj == 1:
@@ -75,7 +75,7 @@ class GlobalMethod:
                 print(f"optimizing failed after {i} steps, obj value={self.obj_value}")
                 break
 
-    def step(self):
+    def iteration(self):
         delta = self.new_delta()
         if self.biased_costs:
             idx = np.random.choice(self.h.size, 1, p=self.idx_cost)[0]
