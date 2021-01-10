@@ -1,10 +1,12 @@
 import numpy as np
 import mesh_util
 import argparse
+import image_util
+
 
 class LocalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, wall_size=0.25, receiver_size=2.5,
-                 light_angle=60):
+                 with_chamfers=True, light_angle=60):
         if len(input_pics) != 3:
             raise ValueError
         self.pics = [1 - pic for pic in input_pics]  # inverting grayscale so black will be 1
@@ -13,10 +15,13 @@ class LocalMethod:
         self.wall_size = wall_size
         self.receiver_size = receiver_size
         self.unit_size = self.receiver_size + self.wall_size
+        self.with_chamfers = with_chamfers
+
         if grid_size:
             self.grid_size = grid_size
         else:
             self.grid_size = int(output_size / self.unit_size)
+
         self.output_size = self.grid_size * self.unit_size + self.wall_size
         self.light_angle = light_angle
         self.S = 1 / np.tan(self.light_angle * (np.pi / 180))
@@ -27,8 +32,6 @@ class LocalMethod:
         self.cplus = np.zeros([self.grid_size, self.grid_size])
         self.cminus = np.zeros([self.grid_size, self.grid_size])
 
-        #self.mesh = trimesh.Trimesh(vertices=[[0, 0, 0], [0, self.output_size, 0], [self.output_size, 0, 0],
-        #                                      [self.output_size, self.output_size, 0]], faces=[[0, 1, 2], [1, 2, 3]])
         self.height = 0.0
         self.vertices = [None]
         self.faces = []
@@ -37,33 +40,27 @@ class LocalMethod:
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(points)
+
     def produce_pix(self):
         self.calc_constrains()
         self.export_constrains_to_mesh()
         self.save_mesh_to_output()
 
     def calc_constrains(self):
-        # for i in range(self.grid_size):
-        #     for j in range(self.grid_size):
-        #         self.u[j, i] = self.u[j, 0] + self.S * (
-        #             sum([self.pics[1][j, x] - self.pics[0][j, x] for x in range(1, j + 1)]))  # equation 1 in the paper
-        # self.u[0, :self.grid_size] += self.S * self.pics[0][:, 0]  # fix constraints of first column
         for i in range(self.grid_size):
             self.u[:, i + 1] = self.u[:, i] + self.S * (self.pics[1][:, i] - self.pics[0][:, i])
         self.u += (self.S * self.pics[0][:, 0])[:, np.newaxis]
         eq3_constrains = self.S * (-self.pics[0][:self.grid_size - 1, :] + self.pics[0][1:, :] - self.pics[2][1:, :])
-        #eq3_constrains = np.zeros([self.grid_size-1, self.grid_size])
 
-        #self.u[:, 0] -= min(0, np.min(self.u[0,: ]))  # setting the minimium of  u's first row to zero
         for j in range(self.grid_size - 1):
-#            eq3_constrains[j, i] = self.S * (-self.pics[0][j, i] + self.pics[0][j+1, i] - self.pics[2][j+1, i])
             eq3_j_constrain = -self.u[j+1, :-1] + self.u[j, :-1] + eq3_constrains[j, :]
             self.u[j+1, :] += max(np.max(eq3_j_constrain), 0)
         self.r = self.u[:,:self.grid_size] - self.S * self.pics[0]
-        #r=self.u[:,:self.grid_size] - self.S * self.pics[1]
 
         # todo check if the order is right
-        self.calc_chamfers()
+        if self.with_chamfers:
+            self.calc_chamfers()
+
         self.v = self.r + self.S * self.pics[2]
         min_height = min(np.min(self.u), np.min(self.r), np.min(self.v))
         self.u -= min_height
@@ -226,4 +223,46 @@ class LocalMethod:
         self.vertices.extend(topwall)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    import sys
+    import os
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+    parser = argparse.ArgumentParser(description='ShadowPix global method')
+    parser.add_argument('-p', '--pics', nargs='*',
+                        default=["pics/pic_a.jpg",
+                                 "pics/pic_b.jpg",
+                                 "pics/pic_c.jpg"],
+                        help="List of strings representing grayscale images to use")
+    parser.add_argument('-o', '--output',
+                        default='local_method.obj',
+                        type=str, help="Output filename for resulting .OBJ file")
+    parser.add_argument('--output-size',
+                        default=200, type=int, help="Output file size in mm")
+    parser.add_argument('--wall-size',
+                        default=0.25, type=float, help="Thickness of walls in output file")
+    parser.add_argument('--pixel-size',
+                        default=2.5, type=float, help="Pixel size of output file")
+    parser.add_argument('-c', '--with-chamfers',
+                        action='store_true', help="Wether to use chamfers")
+    args = parser.parse_args()
+
+    # Fetch params
+    pics = args.pics
+    output = args.output
+    output_size = args.output_size
+    wall_size = args.wall_size
+    pixel_size = args.pixel_size
+    grid_size = int(output_size / (wall_size + pixel_size))
+    with_chamfers = args.with_chamfers
+
+    square_imgs = [image_util.load_pic_to_square_np(pic, grid_size) for pic in pics]
+    local_m = LocalMethod(input_pics=square_imgs,
+                          output_file=output,
+                          output_size=output_size,
+                          grid_size=grid_size,
+                          wall_size=wall_size,
+                          receiver_size=pixel_size,
+                          with_chamfers=with_chamfers)
+    local_m.produce_pix()
