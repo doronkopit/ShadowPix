@@ -2,6 +2,8 @@
 
 Implementation of **[SHADOWPIX: Multiple Images from Self Shadowing](https://www.cs.tau.ac.il/~amberman/shadowpixPaper.pdf)** paper.
 
+![](orig.gif}
+
 ## Visualizer 
 To use **ShadowPix** visualization -
 ```js
