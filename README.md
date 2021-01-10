@@ -139,12 +139,12 @@ PixModel attempts to add a learning layer to the global method, using a scoring 
 The main idea is to reduce the number of failed attempts of changing the height of a pixel when we choose it randomly. PixModel gives scores to each pixel in the grid, representing how likely is it to be updated successfuly - the scoring is a weighted sum of failed/succcesful updates, and failed/succesful updates of neighbor pixels. (see code and paper for further explainations)
 
 The user can control the hyperparameters of PixModel:
-- with_bias (bool, True): run PixModel along with biased weights from objective function (equally weighted)
-- min_score (float, 0.1): the minimum score a pixel has in the PixModel
-- gain (float, 0.5): the score a pixel gains when it is succesfully updated
-- punish (float, -0.15): the score a pixel loses when it fails to be updated
-- neighbor_factor (float, 0.07): when a pixel updates its score, it updates its neighbor with `(gain|punish)*neighbor_factor` 
-- neighbor_radius (int, 1): when a pixel updates its score, it updates its neighbors of radius neighbor_radius with `(gain|punish)*neighbor_factor` 
+- **with_bias** (bool, True): run PixModel along with biased weights from objective function (equally weighted)
+- **min_score** (float, 0.1): the minimum score a pixel has in the PixModel
+- **gain** (float, 0.5): the score a pixel gains when it is succesfully updated
+- **punish** (float, -0.15): the score a pixel loses when it fails to be updated
+- **neighbor_factor** (float, 0.07): when a pixel updates its score, it updates its neighbor with `(gain|punish)*neighbor_factor` 
+- **neighbor_radius** (int, 1): when a pixel updates its score, it updates its neighbors of radius neighbor_radius with `(gain|punish)*neighbor_factor` 
 
 **Train the model:**
 ```js
@@ -213,7 +213,7 @@ optional arguments:
 ## Visualization
 Visualization is done with Autodesk Maya modeling and ray tracing.
 
-Usage: 
+**Usage:** 
 1. Create a mesh using our ShadowPix implementation
 2. Open Autodesk Maya (free student lisence!)
 3. Change `file` variable to the target .OBJ file
