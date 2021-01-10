@@ -7,13 +7,13 @@ Input (image)            |  Output (mesh)
 ![](orig.gif)  |  ![](model.gif)
 
 ## Local Method 
-**Example of local method usage -**
+Example of local method usage -
 
 **Can simply run it:**
 ```js
 ~/ShadowPix
 ❯ python local_method.py
-Mesh saved into local_method.obj
+Mesh saved into local_method.obj # <--- This file will contain your mesh
 ```
 
 **Or you can choose your own pictures and target file:**
@@ -31,7 +31,7 @@ Mesh saved into awesome_mesh.obj
 usage: local_method.py [-h] [-p [PICS [PICS ...]]] [-o OUTPUT] [--output-size OUTPUT_SIZE]
                        [--wall-size WALL_SIZE] [--pixel-size PIXEL_SIZE] [-c]
 
-ShadowPix global method
+ShadowPix local method
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,7 +50,28 @@ optional arguments:
 ``` 
 
 ## Global Method 
-Example of global method usage, using your own pictures and parameters -
+Example of global method usage -
+
+**Simple run:**
+```js
+~/ShadowPix master* ⇣
+❯ python global_method.py 
+Starting optimization of global method
+0.0% success:0.0%,success_rand:0.0%, fail1:0.0%,fail2:0.0% obj_value:71206.07482022583
+0.05% success:41.05894105894106%,success_rand:2.197802197802198%, fail1:0.0%,fail2:58.841158841158844% obj_value:65412.1092668208 
+# Note that convergence might take some time
+```
+
+**Use custom pictures and targets:**
+```js
+~/ShadowPix
+❯ python global_method.py -p pics/pic_1.jpg pics/pic_2.jpg pics/pic_3.jpg pics/pic_4.jpg -o amazing_mesh.obj
+Starting optimization of global method
+0.0% success:0.0%,success_rand:0.0%, fail1:0.0%,fail2:0.0% obj_value:99696.17530237656
+0.05% success:55.24475524475525%,success_rand:1.3986013986013985%, fail1:0.0%,fail2:44.655344655344656% obj_value:90098.86939958937
+```
+
+**See full usage:**
 ```js
 ~/ShadowPix
 ❯ python global_method.py
@@ -85,8 +106,9 @@ optional arguments:
   -s SMOOTH_WEIGHT, --smooth-weight SMOOTH_WEIGHT
                         Weight of smooth term in objective function (see paper)
   -b, --biased-costs    Wether to use biased costs method
-
-
 ``` 
 
+## PixModel (learning model) 
+
+PixModel attempts to add a learning layer to the global method, using a scoring model for each pixel in the target heightfield (see paper). 
 
