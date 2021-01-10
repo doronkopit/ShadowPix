@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-    parser = argparse.ArgumentParser(description='ShadowPix global method')
+    parser = argparse.ArgumentParser(description='ShadowPix quick demo')
     parser.add_argument('-g',
                         action='store_true', help="Wether to run global method demo (local as default)")
     args = parser.parse_args()
