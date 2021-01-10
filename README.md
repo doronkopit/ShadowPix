@@ -2,7 +2,9 @@
 
 Implementation of **[SHADOWPIX: Multiple Images from Self Shadowing](https://www.cs.tau.ac.il/~amberman/shadowpixPaper.pdf)** paper.
 
-![](orig.gif)
+Input (image)            |  Output (mesh)
+:-------------------------:|:-------------------------:
+![](orig.gif)  |  ![](model.gif)
 
 ## Visualizer 
 To use **ShadowPix** visualization -
