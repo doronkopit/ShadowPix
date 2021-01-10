@@ -6,6 +6,30 @@ Input (image)            |  Output (mesh)
 :-------------------------:|:-------------------------:
 ![](orig.gif)  |  ![](model.gif)
 
+
+## Quick demo
+
+Use the following for local method demo:
+
+```js
+~/ShadowPix
+❯ python shadow_pix.py       
+Starting local method demo
+-203.7797397182064
+Mesh saved into demo_local.obj
+Finished demo, check demo_local.obj file
+```
+
+Use `-g` flag for global method demo:
+```js
+~/ShadowPix 
+❯ python shadow_pix.py -g
+Starting global method demo
+Starting global method optimization
+0.0% success:0.0%,success_rand:0.0%, fail1:0.0%,fail2:0.0% obj_value:71206.07482022583
+0.05% success:41.158841158841156%,success_rand:2.197802197802198%, fail1:0.0%,fail2:58.74125874125874% obj_value:65007.94331045782
+```
+
 ## Local Method 
 Example of local method usage -
 
