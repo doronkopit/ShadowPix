@@ -7,16 +7,24 @@ Input (image)            |  Output (mesh)
 ![](orig.gif)  |  ![](model.gif)
 
 ## Local Method 
-Example of local method usage, using your own pictures and parameters -
+**Example of local method usage -**
+
+**Can simply run it:**
 ```js
 ~/ShadowPix
 ❯ python local_method.py
 Mesh saved into local_method.obj
+```
 
+**Or you can choose your own pictures and target file:**
+```js
 ~/ShadowPix
 ❯ python local_method.py -p pics/pic_1.jpg pics/pic_2.jpg pics/pic_3.jpg -o awesome_mesh.obj
 Mesh saved into awesome_mesh.obj
+```
 
+**See full usage:**
+```js
 ~/ShadowPix
 ❯ python local_method.py --help
 
