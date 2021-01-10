@@ -1,7 +1,6 @@
-import image_util
+from util import image_util, mesh_util
 import numpy as np
-import mesh_util
-from image_util import mse
+from util.image_util import mse
 import argparse
 
 

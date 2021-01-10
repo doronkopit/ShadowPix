@@ -1,7 +1,6 @@
 import numpy as np
-import mesh_util
 import argparse
-import image_util
+from util import image_util, mesh_util
 
 
 class LocalMethod:
@@ -125,30 +124,30 @@ class LocalMethod:
 
     def create_wall_mesh(self, i, j, param):
         # creates 5 parts of a wall block
-        lwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+        lwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, i * self.unit_size, 0],
                                                    [(j + 1) * self.unit_size,i * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(lwall)
-        rwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size + self.wall_size, 0],
+        rwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, i * self.unit_size + self.wall_size, 0],
                                                    [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                     param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(rwall)
-        upwall = mesh_util.get_4_points_from_2_vert([ (j + 1) * self.unit_size, i * self.unit_size,0],
+        upwall = mesh_util.get_4_points_from_2_vert([(j + 1) * self.unit_size, i * self.unit_size, 0],
                                                     [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                      param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(upwall)
-        dwnwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+        dwnwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, i * self.unit_size, 0],
                                                      [ j * self.unit_size,i * self.unit_size + self.wall_size,
                                                       param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(dwnwall)
-        topwall = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size, param],
+        topwall = mesh_util.get_4_points_from_2_horiz([j * self.unit_size, i * self.unit_size, param],
                                                       [ (j + 1) * self.unit_size,i * self.unit_size + self.wall_size,
                                                        param])
         verts = len(self.vertices)
@@ -156,7 +155,7 @@ class LocalMethod:
         self.vertices.extend(topwall)
 
     def create_receiver_mesh(self, i, j, param):
-        receiver = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size + self.wall_size, param],
+        receiver = mesh_util.get_4_points_from_2_horiz([j * self.unit_size, i * self.unit_size + self.wall_size, param],
                                                        [
                                                         (j + 1) * self.unit_size - self.wall_size,(i + 1) * self.unit_size, param])
         verts = len(self.vertices)
@@ -189,33 +188,33 @@ class LocalMethod:
 
     def create_vwall_mesh(self, i, j, param):
         # creates 5 parts of a wall block
-        lwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+        lwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, i * self.unit_size, 0],
                                                    [ j * self.unit_size + self.wall_size,i * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(lwall)
 
-        rwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,(i + 1) * self.unit_size, 0],
+        rwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, (i + 1) * self.unit_size, 0],
                                                    [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                     param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(rwall)
 
-        upwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size + self.wall_size,i * self.unit_size, 0],
+        upwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size + self.wall_size, i * self.unit_size, 0],
                                                     [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                      param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(upwall)
 
-        dwnwall = mesh_util.get_4_points_from_2_vert([ j * self.unit_size,i * self.unit_size, 0],
+        dwnwall = mesh_util.get_4_points_from_2_vert([j * self.unit_size, i * self.unit_size, 0],
                                                      [j * self.unit_size,(i + 1) * self.unit_size, param])
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(dwnwall)
 
-        topwall = mesh_util.get_4_points_from_2_horiz([ j * self.unit_size,i * self.unit_size, param],
+        topwall = mesh_util.get_4_points_from_2_horiz([j * self.unit_size, i * self.unit_size, param],
                                                       [ j * self.unit_size + self.wall_size,(i + 1) * self.unit_size,
                                                        param])
         verts = len(self.vertices)

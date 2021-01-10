@@ -1,6 +1,6 @@
 from local_method import LocalMethod
 from global_method import GlobalMethod
-import image_util
+from util import image_util
 import cProfile, pstats, io
 from pstats import SortKey
 
@@ -22,7 +22,7 @@ if local:
 else:
     res=1
 
-    square_imgs = [image_util.load_pic_to_square_np(pic, output_size//res) for pic in pics]
+    square_imgs = [image_util.load_pic_to_square_np(pic, output_size // res) for pic in pics]
     global_m = GlobalMethod(square_imgs, output, output_size,steps=2*10**6,height_field_size=1)
     print("starting optimize")
     global_m.produce_pix()

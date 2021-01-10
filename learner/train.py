@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from learner.global_method_learning import GlobalMethodLearner
 from learner.learning_utils import print_stats
-import image_util
+from util import image_util
 import argparse
 
 
