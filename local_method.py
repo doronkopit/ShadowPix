@@ -1,9 +1,6 @@
 import numpy as np
 import mesh_util
-
-
-# import image_util
-
+import argparse
 
 class LocalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, wall_size=0.25, receiver_size=2.5,
@@ -227,3 +224,6 @@ class LocalMethod:
         verts = len(self.vertices)
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(topwall)
+
+
+if __name__ == "__main__":

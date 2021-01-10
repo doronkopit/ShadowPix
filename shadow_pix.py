@@ -16,8 +16,6 @@ grid_size = int(output_size / (wall_size + pixel_size))
 local = False
 if local:
     square_imgs = [image_util.load_pic_to_square_np(pic, grid_size) for pic in pics]
-# for im in square_imgs:
-#     image_util.show_image(im)
     local_m = LocalMethod(square_imgs[:3], output, output_size, grid_size=grid_size, wall_size=wall_size,
                           receiver_size=pixel_size)
     local_m.produce_pix()
@@ -25,8 +23,6 @@ else:
     res=1
 
     square_imgs = [image_util.load_pic_to_square_np(pic, output_size//res) for pic in pics]
-# for im in square_imgs:
-#     image_util.show_image(im)
     global_m = GlobalMethod(square_imgs, output, output_size,steps=2*10**6,height_field_size=1)
     print("starting optimize")
     global_m.produce_pix()

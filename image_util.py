@@ -4,7 +4,6 @@ from PIL import Image
 import cv2
 
 
-
 def pic_to_square(picture):
     # todo resize to square
     pass
