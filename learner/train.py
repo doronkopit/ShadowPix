@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from learner.global_method_learning import GlobalMethodLearner
-from learner.learning_utils import print_stats
+from learner.learning_utils import log_statistics
 from util import image_util
 import argparse
 
@@ -53,6 +53,10 @@ if __name__ == '__main__':
                         default=0.07, type=float, help="Reducing factor for update value for neighboring pixels")
     parser.add_argument("--neighbor-radius",
                         default=1, type=int, help="Neighboring pixel radius (how much steps to go further)")
+    parser.add_argument('--log-path',
+                        type=str, help="Path to log PixModel statistics")
+    parser.add_argument('-v', '--verbose-log',
+                        action='store_true', help="If set, all pixel data is logged in log_path")
     args = parser.parse_args()
 
     # Fetch params
@@ -75,6 +79,8 @@ if __name__ == '__main__':
     punish = args.punish
     neighbor_factor = args.neighbor_factor
     neighbor_radius = args.neighbor_radius
+    log_path = args.log_path
+    verbose_logs = args.verbose_log
 
     res = 1
     square_imgs = [image_util.load_pic_to_square_np(pic, output_size // res) for pic in pics]
@@ -95,4 +101,4 @@ if __name__ == '__main__':
                                    neighbor_radius=neighbor_radius)
     print("Strat training")
     global_m.produce_pix()
-    print_stats(global_m.model, print_all=True)
+    log_statistics(global_m.model, log_path=log_path, log_all=verbose_logs)
