@@ -1,31 +1,33 @@
 import image_util
 import numpy as np
-# import torch
 import mesh_util
-import time
+from image_util import mse
 
+if __name__ == '__main__':
+    pass
 
 class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
-                 light_angle=60, w_g=1.5, w_s=0.001, radius=10, steps=1000, biased_costs=True):
+                 light_angle=60, weight_G=1.5, weight_S=0.001, radius=10, steps=1000, biased_costs=True):
 
-        # if len(input_pics) != 4:
-        #     raise
         self.pics = [pic for pic in input_pics]  # inverting grayscale so black will be 1
         self.gradient_pass_filter_images = image_util.grad_conv(image_util.lp_conv(self.pics))
         self.output_path = output_file
         self.height_field_size = height_field_size
         self.output_size = output_size
+
         if not grid_size:
             self.grid_size = int(output_size // self.height_field_size)
+
+        # Heightfield, objective func.
         self.h = self.create_initial_grid()
         self.light_angle = light_angle
         self.S = 1 / np.tan(self.light_angle * (np.pi / 180))
         self.radius = radius
         self.radius_shadow_pos = np.arange(1, self.radius + 2)
         self.radius_shadow_neg = self.radius_shadow_pos[::-1]
-        self.w_g = w_g
-        self.w_s = w_s
+        self.weight_G = weight_G
+        self.weight_S = weight_S
         self.T = 1
         self.steps = steps
         self.alpha = self.T / self.steps
@@ -35,6 +37,7 @@ class GlobalMethod:
         self.idx_cost = np.zeros(self.h.size)
         self.obj_value = self.calc_objective_val(self.L)
 
+        # Mesh initialization
         self.vertices = [None]
         self.faces = []
         points = [[0, 0, 0], [0, self.output_size, 0], [self.output_size, self.output_size, 0],
@@ -45,7 +48,6 @@ class GlobalMethod:
 
     def produce_pix(self):
         self.optimize()
-        # self.min_object()
         self.export_to_obj()
 
     def optimize(self):
@@ -54,7 +56,7 @@ class GlobalMethod:
         success = 0
         success_rand = 0
         convergence_fail = 0
-        #time_beg = time.time()
+
         for i in range(self.steps):
             if i % 1000 == 0:
                 print(
@@ -74,21 +76,15 @@ class GlobalMethod:
             if convergence_fail == 100:
                 print(f"optimizing failed after {i} steps, obj value={self.obj_value}")
                 break
-            # if time.time() - time_beg > 42300:
-            #     print(f"close to time limit, done {i} steps, obj value={self.obj_value}")
-            #     break
 
     def step(self):
-        delta = 0
-        while 0 == delta:
-            delta = np.random.randint(-5, 6)
+        delta = self.new_delta()
         if self.biased_costs:
             idx = np.random.choice(self.h.size, 1, p=self.idx_cost)[0]
             row = idx // self.grid_size
             col = idx % self.grid_size
         else:
-            row = np.random.randint(0, self.grid_size)
-            col = np.random.randint(0, self.grid_size)
+            row, col = self.new_row_col()
         return self.make_step(row, col, delta)
 
     def make_step(self, row, col, delta):
@@ -110,6 +106,17 @@ class GlobalMethod:
             self.h[row, col] -= delta
             return -1, None
 
+    def new_row_col(self):
+        row = np.random.randint(0, self.grid_size)
+        col = np.random.randint(0, self.grid_size)
+        return row, col
+
+    def new_delta(self):
+        delta = 0
+        while 0 == delta:
+            delta = np.random.randint(-5, 6)
+        return delta
+
     def calc_objective_val(self, L):
         l_conv_p = image_util.lp_conv(L)
         l_conv_p_conv_g = image_util.grad_conv(l_conv_p)
@@ -117,9 +124,9 @@ class GlobalMethod:
         parts = np.zeros(3)
         l1 = mse(l_conv_p, self.pics)
         parts[0] = l1.sum()
-        l2 = self.w_g * mse(l_conv_p_conv_g, self.gradient_pass_filter_images)
+        l2 = self.weight_G * mse(l_conv_p_conv_g, self.gradient_pass_filter_images)
         parts[1] = l2.sum()
-        l3 = self.w_s * mse(h_conv_g, None)
+        l3 = self.weight_S * mse(h_conv_g, None)
         l3 = l3[np.newaxis, :]
         parts[2] = l3.sum()
         loss = np.concatenate([l1, l2, l3])
@@ -258,9 +265,6 @@ class GlobalMethod:
         self.faces.extend([[verts, verts + 1, verts + 2], [verts, verts + 2, verts + 3]])
         self.vertices.extend(topwall)
 
-    def min_object(self):
-        pass
-
 
 class ShadowCalculatorL:
     def __init__(self, radius, grid_size, directions):
@@ -304,13 +308,3 @@ class ShadowCalculatorL:
         res = np.ones(self.grid_size + self.radius) * (-2000)
         res[:vector.shape[0]] = vector
         return res
-
-
-def mse(a, b):
-    if b is None:
-        b = np.zeros(a.shape)
-    res = a - b
-    res = (res ** 2)
-    res = (res)  # / a.size
-    return res
-    # return np.linalg.norm(a-b)

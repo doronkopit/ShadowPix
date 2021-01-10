@@ -43,3 +43,12 @@ def lp_conv(pics,kernel_size=3):
     if type(pics) != np.ndarray or len(pics.shape) > 2:
         return np.array([cv2.blur(pic, (kernel_size, kernel_size)) for pic in pics])
     return cv2.blur(pics, (kernel_size, kernel_size))
+
+
+def mse(a, b):
+    if b is None:
+        b = np.zeros(a.shape)
+    res = a - b
+    res = (res ** 2)
+    res = (res)  # / a.size
+    return res
