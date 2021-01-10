@@ -5,11 +5,17 @@ import numpy as np
 
 class GlobalMethodLearner(GlobalMethod):
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
-                 light_angle=60, weight_G=1.5, w_s=0.001, radius=10, steps=1000, with_bias=True):
+                 light_angle=60, weight_G=1.5, weight_S=0.001, radius=10, steps=1000, with_bias=True,
+                 min_score=0.1, gain=0.5, punish=-0.15, neighbor_factor=0.07, neighbor_radius=1):
         super().__init__(input_pics, output_file, output_size=output_size, grid_size=grid_size, height_field_size=height_field_size,
-                         light_angle=light_angle, weight_G=weight_G, w_s=w_s, radius=radius, steps=steps)
+                         light_angle=light_angle, weight_G=weight_G, weight_S=weight_S, radius=radius, steps=steps)
 
-        self.model = PixModel(grid_size=self.grid_size)
+        self.model = PixModel(grid_size=self.grid_size,
+                              min_score=min_score,
+                              gain=gain,
+                              punish=punish,
+                              neighbor_factor=neighbor_factor,
+                              radius=neighbor_radius)
         self.with_bias = with_bias
 
     @analyze    
