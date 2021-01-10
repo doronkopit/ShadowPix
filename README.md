@@ -7,10 +7,18 @@ Input (image)            |  Output (mesh)
 ![](orig.gif)  |  ![](model.gif)
 
 ## Local Method 
-You can run the local method algorithm, using your own pictures and parameters -
+Example of local method usage, using your own pictures and parameters -
 ```js
 ~/ShadowPix
 ❯ python local_method.py
+Mesh saved into local_method.obj
+
+~/ShadowPix
+❯ python local_method.py -p pics/pic_1.jpg pics/pic_2.jpg pics/pic_3.jpg -o awesome_mesh.obj
+Mesh saved into awesome_mesh.obj
+
+~/ShadowPix
+❯ python local_method.py --help
 
 usage: local_method.py [-h] [-p [PICS [PICS ...]]] [-o OUTPUT] [--output-size OUTPUT_SIZE]
                        [--wall-size WALL_SIZE] [--pixel-size PIXEL_SIZE] [-c]
@@ -34,7 +42,7 @@ optional arguments:
 ``` 
 
 ## Global Method 
-You can run the global method algorithm, using your own pictures and parameters -
+Example of global method usage, using your own pictures and parameters -
 ```js
 ~/ShadowPix
 ❯ python global_method.py
