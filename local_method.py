@@ -117,9 +117,9 @@ class LocalMethod:
             for v in self.vertices:
                 if v is None:
                     continue
-                f.write("v %f %f %f\n" % (v[0], v[1], v[2]))
+                f.write(f"v {v[0]} {v[1]} {v[2]}\n")
             for face in self.faces:
-                f.write("f %d %d %d\n" % (face[0], face[1], face[2]))
+                f.write(f"f {face[0]} {face[1]} {face[2]}\n")
 
     def create_wall_mesh(self, i, j, param):
         # creates 5 parts of a wall block

@@ -5,7 +5,6 @@ import cProfile, pstats, io
 from pstats import SortKey
 import argparse
 
-
 if __name__ == '__main__':
     import sys
     import os
@@ -14,7 +13,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='ShadowPix quick demo')
     parser.add_argument('-g',
-                        action='store_true', help="Wether to run global method demo (local as default)")
+                        action='store_true', help="Whether to run global method demo (local as default)")
     args = parser.parse_args()
 
     pics = ["pics/pic_a.jpg", "pics/pic_b.jpg", "pics/pic_c.jpg", "pics/pic_d.jpg"]
@@ -37,9 +36,9 @@ if __name__ == '__main__':
         print("Starting global method demo")
         output = 'demo_global.obj'
 
-        res=1
-        square_imgs = [image_util.load_pic_to_square_np(pic, output_size // res) for pic in pics]
-        global_m = GlobalMethod(square_imgs, output, output_size,steps=2*10**6,height_field_size=1)
+        res = 1
+        square_imgs = [image_util.load_pic_to_square_np(pic, int(output_size / res)) for pic in pics]
+        global_m = GlobalMethod(square_imgs, output, output_size, steps=2 * 10 ** 6, height_field_size=res)
         print("Starting global method optimization")
         global_m.produce_pix()
 
