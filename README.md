@@ -30,6 +30,9 @@ Starting global method optimization
 0.05% success:41.158841158841156%,success_rand:2.197802197802198%, fail1:0.0%,fail2:58.74125874125874% obj_value:65007.94331045782
 ```
 
+## Examples
+For ![more](examples/)  mesh (.OBJ) and picture (.png, .gif) examples 
+
 ## Local Method 
 Example of local method usage -
 
@@ -217,5 +220,5 @@ Visualization is done with Autodesk Maya modeling and ray tracing.
 1. Create a mesh using our ShadowPix implementation
 2. Open Autodesk Maya (free student lisence!)
 3. Change `file` variable to the target .OBJ file
-4. Run simulation.py via Maya's script editor
+4. Run visualization/simulation.py via Maya's script editor
 5. Default light is `+X`, changing is easy by pressing the directional light red arrows and setting intensity
