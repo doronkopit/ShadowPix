@@ -8,7 +8,7 @@ class GlobalMethod:
     def __init__(self, input_pics, output_file, output_size=200, grid_size=None, height_field_size=1,
                  light_angle=60, weight_G=1.5, weight_S=0.001, radius=10, steps=1000, biased_costs=True):
 
-        self.pics = [pic for pic in input_pics]  # inverting grayscale so black will be 1
+        self.pics = [pic for pic in input_pics]
         self.gradient_pass_filter_images = image_util.grad_conv(image_util.lp_conv(self.pics))
         self.output_path = output_file
         self.height_field_size = height_field_size
@@ -220,14 +220,14 @@ class GlobalMethod:
         self.save_mesh_to_output()
 
     def save_mesh_to_output(self):
-        print("ready to show")
+        print(f"Mesh saved into {self.output_path}")
         with open(self.output_path, 'w+') as f:
             for v in self.vertices:
                 if v is None:
                     continue
-                f.write("v %f %f %f\n" % (v[0], v[1], v[2]))
+                f.write(f"v {v[0]} {v[1]} {v[2]}\n")
             for face in self.faces:
-                f.write("f %d %d %d\n" % (face[0], face[1], face[2]))
+                f.write(f"f {face[0]} {face[1]} {face[2]}\n")
 
     def create_h_mesh(self, i, j, param):
         # creates 5 parts of a wall block
@@ -326,12 +326,8 @@ if __name__ == '__main__':
                         type=str, help="Output filename for resulting .OBJ file")
     parser.add_argument('--output-size',
                         default=200, type=int, help="Output file size in mm")
-    parser.add_argument('--wall-size',
-                        default=0.25, type=float, help="Thickness of walls in output file")
-    parser.add_argument('--pixel-size',
-                        default=2.5, type=float, help="Pixel size of output file")
     parser.add_argument("-i", "--iterations",
-                        default=2*10**6, type=int, help="Number of iterations to perform (see paper)")
+                        default=2 * 10 ** 6, type=int, help="Number of iterations to perform (see paper)")
     parser.add_argument("--height-field-size",
                         default=1, type=int, help="Size of resulting heightfield")
     parser.add_argument("-l", "--light-angle",
@@ -341,16 +337,13 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--smooth-weight",
                         default=0.001, type=float, help="Weight of smooth term in objective function (see paper)")
     parser.add_argument('-b', '--biased-costs',
-                        default=True, action='store_true', help="Wether to use biased costs method")
+                        default=True, action='store_true', help="Whether to use biased costs method")
     args = parser.parse_args()
 
     # Fetch params
     pics = args.pics
     output = args.output
     output_size = args.output_size
-    wall_size = args.wall_size
-    pixel_size = args.pixel_size
-    grid_size = int(output_size / (wall_size + pixel_size))
     steps = args.iterations
     height_field_size = args.height_field_size
     light_angle = args.light_angle
@@ -360,12 +353,12 @@ if __name__ == '__main__':
 
     # Run
     res = 1
-    square_imgs = [image_util.load_pic_to_square_np(pic, output_size // res) for pic in pics]
+    square_imgs = [image_util.load_pic_to_square_np(pic, int(output_size / res)) for pic in pics]
     global_m = GlobalMethod(input_pics=square_imgs,
                             output_file=output,
                             output_size=output_size,
                             steps=steps,
-                            height_field_size=1,
+                            height_field_size=res,
                             light_angle=light_angle,
                             weight_G=gradient_weight,
                             weight_S=smooth_weight,
