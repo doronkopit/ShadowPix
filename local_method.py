@@ -243,7 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--pixel-size',
                         default=2.5, type=float, help="Pixel size of output file")
     parser.add_argument('-c', '--with-chamfers',
-                        action='store_true', help="Wether to use chamfers")
+                        default= True,action='store_true', help="Wether to use chamfers")
     args = parser.parse_args()
 
     # Fetch params
