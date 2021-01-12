@@ -31,7 +31,7 @@ Starting global method optimization
 ```
 
 ## Examples
-See [See](examples/) more mesh (.OBJ) and image (.png, .gif) examples 
+See **[See](examples/)** more mesh (.OBJ) and image (.png, .gif) examples 
 
 ## Local Method 
 Example of local method usage -
