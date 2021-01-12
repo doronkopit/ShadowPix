@@ -99,6 +99,6 @@ if __name__ == '__main__':
                                    punish=punish,
                                    neighbor_factor=neighbor_factor,
                                    neighbor_radius=neighbor_radius)
-    print("Strat training")
+    print("Start training")
     global_m.produce_pix()
     log_statistics(global_m.model, log_path=log_path, log_all=verbose_logs)

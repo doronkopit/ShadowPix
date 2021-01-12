@@ -150,7 +150,7 @@ The user can control the hyperparameters of PixModel:
 ```js
 ~/ShadowPix master* ⇣
 ❯ python model/train.py
-Strat training
+Start training
 0.0% success:0.0%,success_rand:0.0%, fail1:0.0%,fail2:0.0% obj_value:71206.07482022583
 0.05% success:33.56643356643357%,success_rand:1.4985014985014986%, fail1:0.0%,fail2:66.33366633366633% obj_value:66327.78198100696
 ```
@@ -159,7 +159,7 @@ Strat training
 ```js
 ~/Dev/yariv/ShadowPix master* ⇣ 9s
 ❯ python model/train.py -p pics/pic_1.jpg pics/pic_2.jpg pics/pic_3.jpg pics/pic_4.jpg -o amazing_mesh.obj 
-Strat training
+Start training
 0.0% success:0.0%,success_rand:0.0%, fail1:0.0%,fail2:0.0% obj_value:99696.17530237656
 0.05% success:53.54645354645355%,success_rand:2.6973026973026974%, fail1:0.0%,fail2:46.353646353646354% obj_value:90854.34548646204
 ```
